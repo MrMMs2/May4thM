@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Modal with Star Wars Logo</title>
+    <style>
+        /* General styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100vh;
+            background: #000; /* Space background */
+        }
+
+        /* Stars container */
+        .stars {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+            animation: fade 4s infinite ease-in-out;
+        }
+
+        @keyframes fade {
+            0% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+        }
+
+        /* Star Wars logo */
+        .logo {
+            position: fixed;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 100px;
+            font-family: 'Star Jedi', Arial, sans-serif; /* A Star Wars-inspired font */
+            color: #ffcc00;
+            text-shadow: 0 0 30px rgba(255, 204, 0, 0.8), 0 0 60px rgba(255, 204, 0, 0.5);
+            opacity: 0;
+            animation: logoFade 15s infinite ease-in-out;
+            z-index: 10; /* Ensures logo is above everything */
+        }
+
+        @keyframes logoFade {
+            0% {
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+
+        /* Modal styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal {
+            background: rgba(30, 30, 30, 0.95);
+            border-radius: 8px;
+            padding: 20px;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+            z-index: 20;
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+
+        .modal h1 {
+            font-size: 24px;
+            margin: 0;
+            color: #ffcc00;
+            text-shadow: 0 0 10px rgba(255, 204, 0, 0.8);
+        }
+
+        .modal button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #ffcc00;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            color: #121212;
+        }
+
+        .modal button:hover {
+            background: #ffd633;
+        }
+
+        /* Second modal buttons */
+        .choice-button {
+            margin: 10px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            color: white;
+        }
+
+        .choice-button.dark {
+            background: #ff4444;
+        }
+
+        .choice-button.light {
+            background: #4444ff;
+        }
+
+        /* Background overlay for choice */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+            pointer-events: none;
+            transition: background-color 0.5s ease;
+        }
+
+        /* Reset Button */
+        .reset-button {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border: none;
+            padding: 10px 15px;
+            font-size: 14px;
+            color: #000;
+            cursor: pointer;
+            border-radius: 5px;
+            z-index: 30;
+        }
+
+        .reset-button:hover {
+            background-color: rgba(255, 255, 255, 1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Starry background -->
+    <div class="stars" id="stars"></div>
+
+    <!-- Star Wars logo -->
+    <div class="logo">STAR WARS</div>
+
+    <!-- Background overlay for side choice -->
+    <div class="background" id="background"></div>
+
+    <!-- Modal structure -->
+    <div id="modal-overlay" class="modal-overlay">
+        <div class="modal">
+            <h1>May the Force be with you</h1>
+            <button id="close-button">Next</button>
+        </div>
+    </div>
+
+    <div id="choice-modal" class="modal-overlay">
+        <div class="modal">
+            <h1>Dark Side or Light Side?</h1>
+            <button class="choice-button dark" id="dark-side">Dark Side</button>
+            <button class="choice-button light" id="light-side">Light Side</button>
+        </div>
+    </div>
+
+    <!-- Reset Button -->
+    <button class="reset-button" id="reset-button">Reset</button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Star generation
+            const starsContainer = document.getElementById('stars');
+            const numStars = 100;
+
+            for (let i = 0; i < numStars; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 4 + 's';
+                star.style.animationDuration = (2 + Math.random() * 4) + 's';
+                starsContainer.appendChild(star);
+            }
+
+            // Modal functionality
+            const modalOverlay = document.getElementById('modal-overlay');
+            const closeButton = document.getElementById('close-button');
+            const choiceModal = document.getElementById('choice-modal');
+            const darkSideButton = document.getElementById('dark-side');
+            const lightSideButton = document.getElementById('light-side');
+            const background = document.getElementById('background');
+            const resetButton = document.getElementById('reset-button');
+
+            modalOverlay.classList.add('active');
+
+            closeButton.addEventListener('click', () => {
+                modalOverlay.classList.remove('active');
+                choiceModal.classList.add('active');
+            });
+
+            darkSideButton.addEventListener('click', () => {
+                choiceModal.classList.remove('active');
+                background.style.backgroundColor = 'rgba(255, 0, 0, 0.3)';  // Red with 50% opacity
+            });
+
+            lightSideButton.addEventListener('click', () => {
+                choiceModal.classList.remove('active');
+                background.style.backgroundColor = 'rgba(0, 0, 255, 0.3)';  // Blue with 50% opacity
+            });
+
+            // Reset functionality
+            resetButton.addEventListener('click', () => {
+                location.reload();  // Reload the page to reset everything
+            });
+        });
+    </script>
+</body>
+</html>
